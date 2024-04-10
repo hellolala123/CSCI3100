@@ -64,3 +64,6 @@ Sub-components for user details and tweet listing.
 7.components/UserManagement.js
 Admin component for managing users.
 Logic to display, edit, and delete user accounts.
+
+8.components/Navigation.js
+Component for showing Navigation Bar.
