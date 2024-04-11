@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const saltRounds = 10;
 
 // Function to generate JWT token
 function generateToken(user) {
@@ -30,11 +31,12 @@ exports.signup = async (req, res) => {
           return res.status(400).send('User already registered.');
       }
 
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new User({ username, email, password, isAdmin: false });
-
       await newUser.save();
-      res.status(200).json({ message: 'User registered successfully!' });
+
+      const token = generateToken(newUser);
+      res.status(200).json({ message: 'Signup successful!', token });
   } catch (error) {
     res.status(500).json({ message: 'Error in registration process', error: error.message });
   }
@@ -43,23 +45,22 @@ exports.signup = async (req, res) => {
 // User login
 exports.login = async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.body.username });
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
     if (!user) {
-        return res.status(401).json({ message: 'Authentication failed' });
+        return res.status(401).json({ message: 'Invalid username or password.' });
     }
 
-      const match = await bcrypt.compare(password, user.password);
-      if (match) {
-        const token = generateToken(user); // Implement this function to generate a JWT
-        const userInfo = { id: user._id, username: user.username, isAdmin: user.isAdmin };
-        res.json({ message: 'Login successful', token: token, user: userInfo });
-    } else {
-        res.status(401).json({ message: 'Incorrect password.' });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid username or password.' });
     }
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Error in login process', error: error.message });
-  }
+
+    const token = generateToken(user);
+    res.json({ message: 'Login successful!', token });
+} catch (error) {
+    res.status(500).json({ message: error.message || 'Error during login.' });
+}
 };
 
 // Follow a user

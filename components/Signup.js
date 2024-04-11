@@ -13,13 +13,11 @@ const Signup = () => {
     event.preventDefault();
     setError(''); // Clear any existing errors
     try {
-      const response = await axios.post('/api/users/signup', userData);
-      // Handle signup success, e.g., redirecting to login
-    } catch (error) {
-      // Handle signup failure, e.g., showing an error message
-      const errorMessage = error.response?.data?.message || 'An unknown error occurred.';
-      setError(errorMessage);  // Set the error message in the state
-    }
+      await axios.post('/api/users/signup', userData);
+      // Handle successful signup, e.g., redirect or update UI
+  } catch (error) {
+      setError(error.response?.data?.message || 'An unknown error occurred.');
+  }
   };
 
   return (

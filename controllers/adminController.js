@@ -27,7 +27,7 @@ exports.deleteUser = async (req, res) => {
 exports.deleteTweet = async (req, res) => {
     try {
         const tweetId = req.params.tweetId;
-        await Tweet.findByIdAndDelete(tweetId);
+        await Message.findByIdAndDelete(tweetId);
         res.json({ message: 'Tweet deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting tweet', error: error.message });

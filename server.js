@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const xml2js = require('xml2js');
 
+const path = require('path');
 const userRoutes = require('./routes/userRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -20,9 +21,10 @@ app.use(express.json());
 const parser = new xml2js.Parser();
 const saltRounds = 10;
 
-app.use(cors({
-  origin: 'http://localhost:3000', // Adjust to match your frontend server
-}));
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname))); // Serve static files from the React root directory
 
 // MongoDB connection setup
 mongoose.connect('mongodb://localhost:27017/CSCI3100_Project'); 
@@ -122,6 +124,60 @@ app.get('/admin', isAdmin, (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Catch-all route to serve the React application
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// CRUD User
+// CREATE User
+app.post('/admin/user', isAdmin, async (req, res) => {
+	try {
+		const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+		const newUser = new User({ ...req.body, password: hashedPassword });
+		await newUser.save();
+		res.status(200).json({ message: 'User created successfully' });
+	} catch (error) {
+		res.status(500).json({ message: 'Error creating user', error: error.message });
+	}
+});
+
+// READ Users
+app.get('/admin/users', isAdmin, async (req, res) => {
+	try {
+		const users = await User.find({});
+		res.status(200).json(users);
+	} catch (error) {
+		res.status(500).json({ message: 'Error fetching users', error: error.message });
+	}
+});
+
+// UPDATE User
+app.put('/admin/user/:userId', isAdmin, async (req, res) => {
+	try {
+	  let update = req.body;
+	  if (update.password) {
+		update.password = await bcrypt.hash(update.password, saltRounds);
+	  }
+  
+	  const updatedUser = await User.findByIdAndUpdate(req.params.userId, update, { new: true });
+	  res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+	} catch (error) {
+	  res.status(500).json({ message: 'Error updating user', error: error.message });
+	}
+  });
+  
+
+// DELETE User
+app.delete('/admin/user/:userId', isAdmin, async (req, res) => {
+	try {
+		await User.findByIdAndDelete(req.params.userId);
+		res.status(200).json({ message: 'User deleted successfully' });
+	} catch (error) {
+		res.status(500).json({ message: 'Error deleting user', error: error.message });
+	}
+});
 
 // User logout
 app.get('/logout', (req, res) => {
