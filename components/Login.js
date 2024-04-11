@@ -12,8 +12,7 @@ const Login = ({ onLoginSuccess }) => {
     event.preventDefault();
     try {
       const response = await axios.post('/api/users/login', credentials);
-      // Handle login success, e.g., storing the user data, redirecting
-      onLoginSuccess(response.data);
+      localStorage.setItem('token', response.data.token); // Store the token
     } catch (error) {
       console.error('Login failed:', error);
       // Handle login failure, e.g., showing an error message

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const Signup = () => {
   const [userData, setUserData] = useState({ username: '', email: '', password: '' });
+  const [error, setError] = useState('');  // State to store the error message
 
   const handleChange = (event) => {
     setUserData({ ...userData, [event.target.name]: event.target.value });
@@ -10,22 +11,27 @@ const Signup = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setError(''); // Clear any existing errors
     try {
-      await axios.post('/api/users/signup', userData);
+      const response = await axios.post('/api/users/signup', userData);
       // Handle signup success, e.g., redirecting to login
     } catch (error) {
-      console.error('Signup failed:', error);
       // Handle signup failure, e.g., showing an error message
+      const errorMessage = error.response?.data?.message || 'An unknown error occurred.';
+      setError(errorMessage);  // Set the error message in the state
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="username" value={userData.username} onChange={handleChange} placeholder="Username" />
-      <input type="email" name="email" value={userData.email} onChange={handleChange} placeholder="Email" />
-      <input type="password" name="password" value={userData.password} onChange={handleChange} placeholder="Password" />
-      <button type="submit">Sign Up</button>
-    </form>
+    <div>
+      {error && <div className="error-message">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <input type="text" name="username" value={userData.username} onChange={handleChange} placeholder="Username" />
+        <input type="email" name="email" value={userData.email} onChange={handleChange} placeholder="Email" />
+        <input type="password" name="password" value={userData.password} onChange={handleChange} placeholder="Password" />
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
   );
 };
 

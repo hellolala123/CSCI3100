@@ -3,37 +3,48 @@ import axios from 'axios';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/api/admin/users');
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/api/admin/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setUsers(response.data);
       } catch (error) {
-        console.error('Error fetching users', error);
+        setError('Error fetching users');
       }
     };
 
     fetchUsers();
   }, []);
 
-  const handleDeleteUser = async (userId) => {
+  const handleDelete = async (userId) => {
     try {
-      await axios.delete(`/api/admin/user/${userId}`);
-      // Update the user list
+      const token = localStorage.getItem('token');
+      await axios.delete(`/api/admin/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUsers(users.filter(user => user._id !== userId));
     } catch (error) {
-      console.error('Error deleting user', error);
+      setError('Error deleting user');
     }
   };
 
   return (
     <div>
-      {users.map(user => (
-        <div key={user._id}>
-          {user.username}
-          <button onClick={() => handleDeleteUser(user._id)}>Delete</button>
-        </div>
-      ))}
+      <h1>User Management</h1>
+      {error && <p>{error}</p>}
+      <ul>
+        {users.map(user => (
+          <li key={user._id}>
+            {user.username} ({user.email})
+            <button onClick={() => handleDelete(user._id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

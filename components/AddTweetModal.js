@@ -7,7 +7,10 @@ const AddTweetModal = ({ onClose }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await axios.post('/api/messages', { content: tweetContent });
+      const token = localStorage.getItem('token'); // Retrieve token
+      await axios.post('/api/messages', { content: tweetContent }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       onClose(); // Close modal on success
     } catch (error) {
       console.error('Error posting tweet', error);
