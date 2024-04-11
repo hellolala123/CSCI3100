@@ -22,9 +22,8 @@ const parser = new xml2js.Parser();
 const saltRounds = 10;
 
 // Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname))); // Serve static files from the React root directory
+
+app.use(express.static(path.join(__dirname, 'build'))); // Serve static files from the React root directory
 
 // MongoDB connection setup
 mongoose.connect('mongodb://localhost:27017/CSCI3100_Project'); 
@@ -127,7 +126,7 @@ app.use('/api/admin', adminRoutes);
 
 // Catch-all route to serve the React application
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 // CRUD User
