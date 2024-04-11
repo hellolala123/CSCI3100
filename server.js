@@ -10,6 +10,7 @@ const xml2js = require('xml2js');
 const userRoutes = require('./routes/userRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const User = require('./models/userModel');
 
 const app = express();
 //original 3000
