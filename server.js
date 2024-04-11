@@ -45,6 +45,7 @@ async function createDefaultAdmin() {
 	  // Create a new admin user
 	  const adminUser = new User({
 		username: 'admin',
+		email: 'admin@example.com',
 		password: hashedPassword,
 		isAdmin: true,
 	  });
